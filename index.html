@@ -22,6 +22,9 @@
     .recipe>div:last-child{min-width:0}.recipe h3{line-height:1.45}.recipe p{font-size:11px;margin-bottom:5px;overflow-wrap:anywhere}.recipe .recipe-ingredients{color:#4f5f4c}
     .recipe-source{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px 6px;color:var(--green);font-size:12px;font-weight:700;margin-top:5px;padding:5px 0;text-underline-offset:2px}.recipe-source span{font-size:10px;font-weight:500}
     .photo-credit{display:block;color:var(--muted);font-size:9px;margin-top:4px}.photo-credit a{color:inherit;text-underline-offset:2px}
+    .meal-ideas{display:grid;gap:9px}.meal-idea{background:var(--paper);border:1px solid var(--line);border-radius:15px}
+    .meal-idea summary{padding:13px 14px;cursor:pointer;line-height:1.45;color:var(--green)}.meal-idea summary strong{font-size:14px}.meal-idea summary span{font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap}
+    .meal-idea-body{padding:0 14px 12px;font-size:12px;line-height:1.6}.meal-idea-body h3{font-size:12px;margin:8px 0 3px}.meal-idea-body p,.meal-idea-body ol{margin:0 0 5px}.meal-idea-body ol{padding-left:1.4em}.meal-idea-body li+li{margin-top:3px}.meal-idea-empty{font-size:12px;color:var(--muted)}
   </style>
 </head>
 <body><main class="app">
@@ -37,7 +40,12 @@
     <form class="manual" id="manual"><input id="ingredientInput" placeholder="例：卵、キャベツ" aria-label="食材を入力"><button class="add">追加 ＋</button></form>
   </section>
   <section><div class="section-head"><h2>冷蔵庫の中身</h2><span id="count">0 品</span></div><div class="ingredients" id="ingredients"></div><div class="empty" id="empty">写真から読み取るか、食材を入力すると<br>ここに食材が並びます。</div><div class="demo-note" id="demoNote" hidden>写真認識はデモ表示です。実際の食材と違う場合は、チップを編集してください。</div></section>
-  <section><div class="section-head"><h2>この食材で作れるもの</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
+  <section aria-labelledby="mealIdeaTitle">
+    <div class="section-head"><h2 id="mealIdeaTitle">冷蔵庫の食材で考えたレシピ</h2><span id="mealIdeaCount" aria-live="polite"></span></div>
+    <p id="mealIdeaEmpty" class="meal-idea-empty"></p>
+    <div id="mealIdeas" class="meal-ideas"></div>
+  </section>
+  <section><div class="section-head"><h2>レシピサイトの作り方</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
 </main><nav class="bottom"><button class="nav active"><b>⌂</b>ホーム</button><button class="nav"><b>♡</b>お気に入り</button><button class="nav"><b>◷</b>履歴</button><button class="nav"><b>☻</b>マイページ</button></nav><div class="toast" id="toast"></div>
 <script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const recipes=[
@@ -73,6 +81,8 @@ const ingredientAliases={
   '木綿豆腐':'豆腐','絹ごし豆腐':'豆腐','絹豆腐':'豆腐',
   'ツナ缶':'ツナ','シーチキン':'ツナ','鶏胸肉':'鶏むね肉','鶏ムネ肉':'鶏むね肉','とりむね肉':'鶏むね肉',
   'シメジ':'しめじ','ぶなしめじ':'しめじ','ブナシメジ':'しめじ','生しいたけ':'しいたけ','椎茸':'しいたけ',
+  'ナス':'なす','茄子':'なす','ハクサイ':'白菜','豚こま切れ肉':'豚こま肉','豚こま':'豚こま肉',
+  '牛こま切れ肉':'牛こま肉','鶏モモ肉':'鶏もも肉','鳥もも肉':'鶏もも肉','挽き肉':'ひき肉','合いびき肉':'ひき肉',
   '茸':'きのこ','キノコ':'きのこ','ミニトマト':'トマト',
   'わかめ（乾）':'わかめ','乾燥わかめ':'わかめ','みそ':'味噌','ご飯':'ごはん'
 };
@@ -90,6 +100,101 @@ let cloudQueue=Promise.resolve();
 let cloudSessionKnown=false,editedBeforeSession=false;
 if(window.supabase?.createClient&&cloudConfig.url&&cloudConfig.anonKey)cloudClient=window.supabase.createClient(cloudConfig.url,cloudConfig.anonKey);
 function toast(msg){let t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
+const mealVegetables={
+  'キャベツ':'ざく切り','白菜':'ざく切り','玉ねぎ':'薄切り','長ねぎ':'斜め薄切り',
+  'にんじん':'細切り','じゃがいも':'5mm厚さのいちょう切り','さつまいも':'5mm厚さのいちょう切り',
+  '大根':'5mm厚さのいちょう切り','トマト':'一口大','なす':'薄めの半月切り',
+  'ピーマン':'細切り','パプリカ':'細切り','小松菜':'3cm幅','ほうれん草':'3cm幅',
+  'ブロッコリー':'小さめの房','もやし':'水気を切る','ズッキーニ':'薄い半月切り',
+  'かぼちゃ':'5mm厚さの薄切り','きのこ':'一口大','しめじ':'小房','しいたけ':'薄切り',
+  'エリンギ':'薄切り','舞茸':'小房','まいたけ':'小房','えのき':'3cm幅','マッシュルーム':'薄切り',
+  'ひらたけ':'小房','レタス':'一口大','コーン':'汁気を切る'
+};
+const firmVegetables=['にんじん','じゃがいも','さつまいも','大根','かぼちゃ','ブロッコリー'];
+const mealProteins=['鶏むね肉','鶏もも肉','豚こま肉','豚バラ肉','牛こま肉','ひき肉','鶏肉','豚肉','牛肉'];
+const meatSafety='肉は中心まで十分に加熱する（中心温度75℃で1分以上が目安）。';
+
+function mealIdeas(available){
+  const foods=[...available];
+  const vegetables=foods.filter(name=>Object.hasOwn(mealVegetables,name)
+    &&(name!=='きのこ'||!mushrooms.some(kind=>available.has(kind)))).slice(0,3);
+  const meat=foods.find(name=>mealProteins.includes(name));
+  const protein=meat||foods.find(name=>name==='豆腐'||name==='ツナ');
+  const hasEgg=available.has('卵');
+  const ideas=[];
+  const prepVegetables=names=>names.map(name=>{
+    const cut=mealVegetables[name];
+    return name+'は'+(cut.endsWith('切る')?cut:cut+'にする')+'。';
+  }).join(' ');
+  const meatPrep=meat?(meat==='ひき肉'?'ひき肉をほぐす。':meat+'を小さめの一口大に切る。'):'';
+  const prepare=(main)=>[
+    prepVegetables(vegetables),meatPrep,
+    main==='豆腐'?'豆腐は水気を切って一口大に切る。':'',
+    main==='ツナ'?'ツナは汁気を切る。':''
+  ].filter(Boolean).join(' ');
+  const amount=name=>name==='ツナ'?'1/2缶':name==='豆腐'?'100g':mealProteins.includes(name)?'100g':'約50g';
+  const vegetablesForPan=vegetables.length
+    ?(vegetables.some(name=>firmVegetables.includes(name))
+      ?'火の通りにくい野菜から炒め、水大さじ1を加えてふたをし、柔らかくなるまで蒸し焼きにする。残りの野菜を加えて火を通す。'
+      :'野菜を加えて火が通るまで炒める。')
+    :'';
+  const selected=[...(protein?[protein]:[]),...vegetables];
+  const label=names=>names.slice(0,2).join('と')+(names.length>2?'など':'');
+  if(selected.length){
+    const start=meat?'フライパンに油を熱し、肉を炒める。':'フライパンに油を熱する。';
+    const finish=protein==='豆腐'?'豆腐を加え、崩さないように温まるまで炒める。'
+      :protein==='ツナ'?'ツナを加え、全体を混ぜて温める。':'';
+    ideas.push({
+      name:label(selected)+'のしょうゆ炒め',time:meat||vegetables.some(name=>firmVegetables.includes(name))?20:10,
+      ingredients:selected.map(name=>name+' '+amount(name)),seasoning:'油 小さじ1、しょうゆ 小さじ1、こしょう 少々',
+      steps:[prepare(protein),[start,vegetablesForPan,finish,meat?meatSafety:''].filter(Boolean).join(' '),'しょうゆを回し入れ、こしょうで味を調える。']
+    });
+    const simmer=meat?'肉は先に入れ、再沸騰したらアクを取る。':'';
+    const addVegetables=vegetables.length?'野菜は火の通りにくいものから加え、柔らかくなるまで煮る。':'';
+    const addProtein=protein&&!meat?protein+'を加えて温まるまで煮る。':'';
+    ideas.push({
+      name:label(selected)+'のうま塩スープ',time:meat?25:vegetables.some(name=>firmVegetables.includes(name))?20:15,
+      ingredients:selected.map(name=>name+' '+amount(name)),seasoning:'水 250mL、顆粒だし 小さじ1/2、塩・こしょう 各少々',
+      steps:[prepare(protein),'鍋に水とだしを入れて沸かす。',[simmer,addVegetables,addProtein,meat?meatSafety:'','塩・こしょうで味を調える。'].filter(Boolean).join(' ')]
+    });
+  }
+  if(hasEgg){
+    const eggFilling=vegetables.slice(0,2);
+    const eggAmount=eggFilling.map(name=>name+' '+amount(name));
+    ideas.unshift({
+      name:eggFilling.length?eggFilling.join('と')+'の卵炒め':'ふんわり炒り卵',time:eggFilling.some(name=>firmVegetables.includes(name))?15:10,
+      ingredients:['卵 2個',...eggAmount],seasoning:'油 小さじ1、塩・こしょう 各少々',
+      steps:[prepVegetables(eggFilling),'卵を溶き、塩・こしょうを混ぜる。',
+        'フライパンに油を熱する。'+(eggFilling.length?'具を火の通りにくいものから炒め、柔らかくする。':''),
+        '溶き卵を入れ、大きく混ぜながら全体が固まるまで火を通す。']
+    });
+  }
+  return ideas;
+}
+
+function renderMealIdeas(available){
+  const container=$('#mealIdeas');
+  container.replaceChildren();
+  const ideas=mealIdeas(available);
+  $('#mealIdeaCount').textContent=ideas.length?ideas.length+' 件':'';
+  const message=$('#mealIdeaEmpty');
+  message.hidden=ideas.length>0;
+  message.textContent=available.size
+    ?'卵・豆腐・野菜・肉など、対応する食材を追加すると作り方が出ます。'
+    :'食材を追加すると、組み合わせに合う作り方が出ます。';
+  for(const recipe of ideas){
+    const details=document.createElement('details');
+    details.className='meal-idea';
+    details.innerHTML=`<summary><strong>${recipe.name}</strong><span>約${recipe.time}分</span></summary>
+      <div class="meal-idea-body">
+        <h3>材料（1人分）</h3><p>${recipe.ingredients.join('、')}</p>
+        <p><b>調味料</b> ${recipe.seasoning}</p>
+        <h3>作り方</h3><ol>${recipe.steps.filter(Boolean).map(step=>'<li>'+step+'</li>').join('')}</ol>
+      </div>`;
+    container.append(details);
+  }
+}
+
 function render(){
   const box=$('#ingredients');
   box.innerHTML='';
@@ -114,6 +219,7 @@ function render(){
 
   const available=new Set(items.map(ingredientName));
   if(mushrooms.some(name=>available.has(name)))available.add('きのこ');
+  renderMealIdeas(available);
   let matching=recipes.filter(recipe=>recipe.need.every(name=>available.has(name)));
   if(filter==='15')matching=matching.filter(recipe=>recipe.time<=15);
   if(filter==='easy')matching=matching.filter(recipe=>recipe.easy);

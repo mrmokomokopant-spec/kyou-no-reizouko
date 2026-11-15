@@ -129,37 +129,39 @@
     .cookpad-search{display:inline-flex;align-items:center;gap:6px;margin:0 0 12px;padding:9px 13px;border:1px solid #cad3c6;border-radius:999px;color:var(--green);text-decoration:none;font-size:12px;font-weight:700}
     .cookpad-search:hover{background:var(--soft)}
     .cookpad-hint{margin:0 0 11px;color:var(--muted);font-size:12px}
+    .page{padding-bottom:34px}.ingredient-list{margin-top:22px}.next-page{margin-top:19px}.cloud-card{margin-top:22px!important;border-top:1px solid var(--line)}
+    .top-link,.edit-page{border:1px solid #cad3c6;border-radius:999px;background:transparent;color:var(--green);padding:8px 13px;font-size:12px;font-weight:700}.top-link:hover,.edit-page:hover{background:var(--soft)}
+    .recipe-heading{margin:16px 0 8px}.recipe-heading>div{min-width:0}.recipe-heading h1{margin:0;font-size:clamp(26px,5vw,42px);letter-spacing:-.05em;line-height:1.25}.recipe-heading .eyebrow{margin:0 0 5px;font-size:10px;letter-spacing:.14em;color:var(--green)}
+    .recipe-summary{margin:8px 0 22px;color:var(--muted);font-size:13px}.ideas-section{margin-bottom:26px}.ideas-section>.section-head h2,.external>.section-head h2{font-size:18px}
+    @media(max-width:740px){.page{padding-bottom:25px}.ingredient-list{margin-top:18px}.recipe-heading{margin-top:8px}.recipe-heading h1{font-size:28px}.edit-page{padding:7px 10px}}
   </style>
 </head>
 <body><main class="app">
-  <header class="top"><div class="brand"><span class="brandmark">菜</span>きょうの冷蔵庫</div><a class="top-link" href="#mealIdeaTitle">レシピを見る ↓</a></header>
-  <section class="hero">
-    <div class="hero-copy"><h1>冷蔵庫から、<br><em>今日なに作る？</em></h1><p>家にある食材で、分量と作り方つきのレシピを。</p></div>
-    <div class="hero-photo"><img src="https://images.unsplash.com/photo-1757878260636-6e749f2bb8cf?auto=format&amp;fit=crop&amp;w=1100&amp;q=82" alt="" fetchpriority="high"></div>
-  </section>
-  <div class="workspace">
-    <div class="entry">
-  <section class="upload-card" aria-label="食材の取り込み">
-    <h2>食材を追加</h2>
-    <form class="manual" id="manual"><input id="ingredientInput" placeholder="例：卵、キャベツ" aria-label="食材を入力"><button class="add">追加</button></form>
-    <div class="divider">写真から追加</div>
-    <div class="tabs"><button class="tab active" data-kind="fridge">冷蔵庫</button><button class="tab" data-kind="receipt">レシート</button></div>
-    <label class="drop" id="drop"><img class="preview" id="preview" alt="選択した写真"><div class="drop-content"><div class="camera" id="camera">＋</div><strong id="uploadTitle">写真を撮る・選ぶ</strong><small id="uploadHint">冷蔵庫の中が見える写真をアップロード</small></div><input id="photo" type="file" accept="image/*" capture="environment" aria-label="写真を撮るまたは画像を選ぶ"></label>
-    <div class="privacy">写真は食材の確認にだけ使います</div>
-    <button class="primary" id="scan">写真から食材を読み取る <span>→</span></button>
-  </section>
+  <header class="top"><div class="brand"><span class="brandmark">菜</span>きょうの冷蔵庫</div><button class="top-link" id="headerEdit" type="button" hidden>食材を編集</button></header>
+  <main id="ingredientPage" class="page">
+    <section class="hero">
+      <div class="hero-copy"><h1>冷蔵庫から、<br><em>今日なに作る？</em></h1><p>家にある食材で、分量と作り方つきのレシピを。</p></div>
+      <div class="hero-photo"><img src="https://images.unsplash.com/photo-1757878260636-6e749f2bb8cf?auto=format&amp;fit=crop&amp;w=1100&amp;q=82" alt="" fetchpriority="high"></div>
+    </section>
+    <section class="upload-card" aria-label="食材の取り込み">
+      <h2>食材を追加</h2>
+      <form class="manual" id="manual"><input id="ingredientInput" placeholder="例：卵、キャベツ" aria-label="食材を入力"><button class="add">追加</button></form>
+      <div class="divider">写真から追加</div>
+      <div class="tabs"><button class="tab active" data-kind="fridge">冷蔵庫</button><button class="tab" data-kind="receipt">レシート</button></div>
+      <label class="drop" id="drop"><img class="preview" id="preview" alt="選択した写真"><div class="drop-content"><div class="camera" id="camera">＋</div><strong id="uploadTitle">写真を撮る・選ぶ</strong><small id="uploadHint">冷蔵庫の中が見える写真をアップロード</small></div><input id="photo" type="file" accept="image/*" capture="environment" aria-label="写真を撮るまたは画像を選ぶ"></label>
+      <div class="privacy">写真は食材の確認にだけ使います</div>
+      <button class="primary" id="scan">写真から食材を読み取る <span>→</span></button>
+    </section>
+    <section class="ingredient-list"><div class="section-head"><h2>冷蔵庫の中身</h2><span id="count">0 品</span></div><div class="ingredients" id="ingredients"></div><div class="empty" id="empty">食材を入力すると、ここに並びます。</div><div class="demo-note" id="demoNote" hidden>写真認識はデモ表示です。実際の食材と違う場合は、チップを編集してください。</div></section>
+    <button class="primary next-page" id="showRecipes" type="button">レシピを見る <span>→</span></button>
     <section class="cloud-card"><div class="cloud-row"><div class="cloud-copy"><strong id="cloudTitle">端末間で食材を同期</strong><span id="cloudSubtitle">メールでログインすると、スマホとPCで共有できます</span></div><button class="cloud-action" id="cloudToggle">ログイン</button></div><form class="cloud-form" id="cloudForm"><input id="cloudEmail" type="email" autocomplete="email" placeholder="メールアドレス" required><button class="cloud-action" type="submit">ログインリンクを送る</button></form><p class="cloud-help" id="cloudHelp"></p></section>
-    </div>
-    <div class="results">
-  <section><div class="section-head"><h2>冷蔵庫の中身</h2><span id="count">0 品</span></div><div class="ingredients" id="ingredients"></div><div class="empty" id="empty">写真から読み取るか、食材を入力すると<br>ここに食材が並びます。</div><div class="demo-note" id="demoNote" hidden>写真認識はデモ表示です。実際の食材と違う場合は、チップを編集してください。</div></section>
-  <section aria-labelledby="mealIdeaTitle">
-    <div class="section-head"><h2 id="mealIdeaTitle">今日のレシピ案</h2><span id="mealIdeaCount" aria-live="polite"></span></div>
-    <p id="mealIdeaEmpty" class="meal-idea-empty"></p>
-    <div id="mealIdeas" class="meal-ideas"></div>
-  </section>
-    </div>
-  </div>
-  <section class="external"><div class="section-head"><h2>レシピサイトから</h2><span id="recipeCount">まずは食材を追加</span></div><a id="cookpadSearch" class="cookpad-search" href="https://cookpad.com/jp" target="_blank" rel="noopener noreferrer" hidden>クックパッドで食材を検索 ↗</a><p id="cookpadHint" class="cookpad-hint">食材を追加すると、クックパッドで検索できます。</p><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
+  </main>
+  <main id="recipePage" class="page" hidden>
+    <div class="section-head recipe-heading"><div><p class="eyebrow">YOUR FRIDGE, YOUR MENU</p><h1 id="mealIdeaTitle">今日のレシピ案</h1></div><button class="edit-page" id="editIngredients" type="button">食材を編集</button></div>
+    <p id="recipeIngredientsSummary" class="recipe-summary"></p>
+    <section class="ideas-section"><div class="section-head"><h2>食材から考えたレシピ</h2><span id="mealIdeaCount" aria-live="polite"></span></div><p id="mealIdeaEmpty" class="meal-idea-empty"></p><div id="mealIdeas" class="meal-ideas"></div></section>
+    <section class="external"><div class="section-head"><h2>レシピサイトから</h2><span id="recipeCount">食材を追加してください</span></div><a id="cookpadSearch" class="cookpad-search" href="https://cookpad.com/jp" target="_blank" rel="noopener noreferrer" hidden>クックパッドで食材を検索 ↗</a><p id="cookpadHint" class="cookpad-hint">食材を追加すると、クックパッドで検索できます。</p><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
+  </main>
 </main><div class="toast" id="toast"></div>
 <script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const recipes=[
@@ -310,6 +312,17 @@ function renderMealIdeas(available){
   }
 }
 
+function showPage(page){
+  const recipes=page==='recipes';
+  $('#ingredientPage').hidden=recipes;
+  $('#recipePage').hidden=!recipes;
+  $('#headerEdit').hidden=!recipes;
+  window.scrollTo(0,0);
+}
+$('#showRecipes').onclick=()=>showPage('recipes');
+$('#editIngredients').onclick=()=>showPage('ingredients');
+$('#headerEdit').onclick=()=>showPage('ingredients');
+
 function render(){
   const box=$('#ingredients');
   box.innerHTML='';
@@ -329,6 +342,7 @@ function render(){
     box.append(chip);
   });
   $('#count').textContent=items.length+' 品';
+  $('#recipeIngredientsSummary').textContent=items.length?'使う食材　'+items.join('・'):'食材を追加すると、レシピを提案します。';
   $('#empty').hidden=items.length>0;
   $('#demoNote').hidden=!window.demoItems;
 

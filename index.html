@@ -33,7 +33,7 @@
     <form class="manual" id="manual"><input id="ingredientInput" placeholder="例：卵、キャベツ" aria-label="食材を入力"><button class="add">追加 ＋</button></form>
   </section>
   <section><div class="section-head"><h2>冷蔵庫の中身</h2><span id="count">0 品</span></div><div class="ingredients" id="ingredients"></div><div class="empty" id="empty">写真から読み取るか、食材を入力すると<br>ここに食材が並びます。</div><div class="demo-note" id="demoNote" hidden>写真認識はデモ表示です。実際の食材と違う場合は、チップを編集してください。</div></section>
-  <section><div class="section-head"><h2>この食材で作れるもの</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を2つ以上追加すると、レシピが見つかります。</div></section>
+  <section><div class="section-head"><h2>この食材で作れるもの</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
 </main><nav class="bottom"><button class="nav active"><b>⌂</b>ホーム</button><button class="nav"><b>♡</b>お気に入り</button><button class="nav"><b>◷</b>履歴</button><button class="nav"><b>☻</b>マイページ</button></nav><div class="toast" id="toast"></div>
 <script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const recipes=[
@@ -50,10 +50,66 @@ const STORAGE_KEY='kyou-no-reizouko-ingredients-v1';
 let items=[];try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');if(Array.isArray(saved))items=saved.filter(x=>typeof x==='string')}catch{}
 let kind='fridge',filter='all',imageUrl='';const $=s=>document.querySelector(s);
 const cloudConfig=window.SUPABASE_CONFIG||{};let cloudClient=null,cloudUser=null,cloudTimer=null;
+let cloudQueue=Promise.resolve();
+let cloudSessionKnown=false,editedBeforeSession=false;
 if(window.supabase?.createClient&&cloudConfig.url&&cloudConfig.anonKey)cloudClient=window.supabase.createClient(cloudConfig.url,cloudConfig.anonKey);
 function toast(msg){let t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2300)}
-function render(){localStorage.setItem(STORAGE_KEY,JSON.stringify(items));if(cloudUser){clearTimeout(cloudTimer);cloudTimer=setTimeout(saveCloud,500)}const box=$('#ingredients');box.innerHTML='';items.forEach((x,i)=>{const c=document.createElement('span');c.className='chip';c.append(document.createTextNode(x+' '));const b=document.createElement('button');b.textContent='×';b.setAttribute('aria-label',x+'を削除');b.onclick=()=>{items.splice(i,1);render()};c.append(b);box.append(c)});$('#count').textContent=items.length+' 品';$('#empty').hidden=items.length>0;$('#demoNote').hidden=!window.demoItems;let matching=recipes.map(r=>({...r,score:r.need.filter(n=>items.includes(n)).length})).filter(r=>r.score>0).sort((a,b)=>b.score-a.score);if(filter==='15')matching=matching.filter(r=>r.time<=15);if(filter==='easy')matching=matching.filter(r=>r.easy);if(filter==='vegetarian')matching=matching.filter(r=>r.vegetarian);$('#recipes').innerHTML='';matching.forEach(r=>{const a=document.createElement('article');a.className='recipe';a.innerHTML=`<div class="food">${r.emoji}</div><div><h3>${r.name}</h3><p>${r.note}<br>あと ${r.extra}</p><div class="meta">◷ ${r.time}分 <span>·</span> ${r.easy?'かんたん':'ふつう'}<span class="match">食材 ${r.score}/${r.need.length}</span></div></div>`;$('#recipes').append(a)});$('#recipeCount').textContent=items.length?matching.length+' 件':'まずは食材を追加';$('#noRecipes').style.display=items.length>0&&matching.length===0?'block':'none';if(items.length<2&&matching.length===0)$('#noRecipes').style.display='block'}
-function add(list){let added=0;list.map(x=>x.trim()).filter(Boolean).forEach(x=>{if(!items.some(v=>v.toLowerCase()===x.toLowerCase())){items.push(x);added++}});render();return added}
+function render(){
+  const box=$('#ingredients');
+  box.innerHTML='';
+  items.forEach((name,index)=>{
+    const chip=document.createElement('span');
+    chip.className='chip';
+    chip.append(document.createTextNode(name+' '));
+    const remove=document.createElement('button');
+    remove.textContent='×';
+    remove.setAttribute('aria-label',name+'を削除');
+    remove.onclick=()=>{
+      items.splice(index,1);
+      saveIngredients();
+      render();
+    };
+    chip.append(remove);
+    box.append(chip);
+  });
+  $('#count').textContent=items.length+' 品';
+  $('#empty').hidden=items.length>0;
+  $('#demoNote').hidden=!window.demoItems;
+
+  const available=new Set(items);
+  let matching=recipes.filter(recipe=>recipe.need.every(name=>available.has(name)));
+  if(filter==='15')matching=matching.filter(recipe=>recipe.time<=15);
+  if(filter==='easy')matching=matching.filter(recipe=>recipe.easy);
+  if(filter==='vegetarian')matching=matching.filter(recipe=>recipe.vegetarian);
+  matching.sort((a,b)=>b.need.length-a.need.length);
+
+  const list=$('#recipes');
+  list.innerHTML='';
+  matching.forEach(recipe=>{
+    const card=document.createElement('article');
+    card.className='recipe';
+    card.innerHTML=`<div class="food">${recipe.emoji}</div><div><h3>${recipe.name}</h3><p>${recipe.note}<br>あと ${recipe.extra}</p><div class="meta">◷ ${recipe.time}分 <span>·</span> ${recipe.easy?'かんたん':'ふつう'}<span class="match">食材 ${recipe.need.length}/${recipe.need.length}</span></div></div>`;
+    list.append(card);
+  });
+  $('#recipeCount').textContent=items.length?matching.length+' 件':'まずは食材を追加';
+  const empty=$('#noRecipes');
+  empty.style.display=matching.length?'none':'block';
+  empty.textContent=items.length
+    ? '主な食材がそろうレシピが見つかりませんでした。'
+    : '食材を追加すると、作れるレシピが表示されます。';
+}
+
+function add(list){
+  let added=0;
+  for(const name of list.map(value=>value.trim()).filter(Boolean)){
+    if(items.some(value=>value.toLowerCase()===name.toLowerCase()))continue;
+    items.push(name);
+    added++;
+  }
+  if(added)saveIngredients();
+  render();
+  return added;
+}
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');kind=b.dataset.kind;$('#uploadHint').textContent=kind==='fridge'?'冷蔵庫の中が見える写真をアップロード':'買った食材が写ったレシートをアップロード';$('#uploadTitle').textContent=kind==='fridge'?'写真を撮る・選ぶ':'レシートを撮る・選ぶ';$('#scan').innerHTML=(kind==='fridge'?'写真':'レシート')+'から食材を読み取る <span>→</span>';$('#photo').value=''});
 $('#photo').onchange=e=>{const f=e.target.files[0];if(!f)return;if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl=URL.createObjectURL(f);$('#preview').src=imageUrl;$('#drop').classList.add('has-image');$('#uploadTitle').textContent=f.name};
 $('#scan').onclick=()=>{if(!$('#photo').files[0]){toast('先に写真を撮るか、画像を選んでください');$('#photo').click();return}const btn=$('#scan');btn.disabled=true;btn.textContent='写真を確認しています…';setTimeout(()=>{btn.disabled=false;btn.innerHTML='写真から食材を読み取る <span>→</span>';window.demoItems=true;const demo=kind==='fridge'?['卵','キャベツ','トマト','玉ねぎ']:['卵','鶏むね肉','にんじん'];const n=add(demo);toast('食材候補を追加しました。内容を確認してください');},850)};
@@ -61,9 +117,100 @@ $('#manual').onsubmit=e=>{e.preventDefault();const val=$('#ingredientInput').val
 document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});document.querySelectorAll('.nav').forEach((b,i)=>b.onclick=()=>{if(i)toast('この機能は準備中です')});render();
 function setCloudStatus(title,subtitle,button){$('#cloudTitle').textContent=title;$('#cloudSubtitle').textContent=subtitle;$('#cloudToggle').textContent=button}
 function showCloudHelp(message){const el=$('#cloudHelp');el.textContent=message;el.classList.add('show')}
-async function syncCloud(){if(!cloudClient||!cloudUser)return;setCloudStatus('クラウドと同期中…',cloudUser.email||'ログイン済み','同期中');const {data,error}=await cloudClient.from('fridge_lists').select('ingredients').eq('user_id',cloudUser.id).maybeSingle();if(error){showCloudHelp('同期に失敗しました。Supabaseの接続設定とテーブル設定を確認してください。');setCloudStatus('端末に保存中','クラウドに接続できません','再試行');return}if(data&&Array.isArray(data.ingredients)){items=data.ingredients.filter(x=>typeof x==='string');render()}else await saveCloud();setCloudStatus('スマホ・PCで同期中',cloudUser.email||'ログイン済み','ログアウト')}
-async function saveCloud(){if(!cloudClient||!cloudUser)return;setCloudStatus('クラウドに保存中…',cloudUser.email||'ログイン済み','同期中');const {error}=await cloudClient.from('fridge_lists').upsert({user_id:cloudUser.id,ingredients:items,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error){showCloudHelp('クラウドへの保存に失敗しました。ネット接続とテーブル設定を確認してください。');setCloudStatus('端末に保存中','クラウドに接続できません','再試行');return}setCloudStatus('スマホ・PCで同期中',cloudUser.email||'ログイン済み','ログアウト')}
-$('#cloudToggle').onclick=async()=>{if(!cloudClient){showCloudHelp('クラウド接続の準備がまだです。付属の「はじめかた.md」に沿ってSupabaseのURLと公開キーを設定してください。');return}if(cloudUser){await cloudClient.auth.signOut();cloudUser=null;setCloudStatus('端末間で食材を同期','メールでログインすると、スマホとPCで共有できます','ログイン');$('#cloudForm').classList.remove('open');return}$('#cloudForm').classList.toggle('open')};
+function pendingKey(user){
+  return STORAGE_KEY+'-pending-'+user.id;
+}
+
+function saveIngredients(){
+  const snapshot=JSON.stringify(items);
+  localStorage.setItem(STORAGE_KEY,snapshot);
+  if(!cloudUser){
+    if(cloudClient&&!cloudSessionKnown)editedBeforeSession=true;
+    return;
+  }
+
+  localStorage.setItem(pendingKey(cloudUser),snapshot);
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(syncCloud,500);
+}
+
+function syncCloud(){
+  const user=cloudUser;
+  if(!cloudClient||!user)return;
+  // Serialize cloud requests so older saves cannot finish after newer ones.
+  cloudQueue=cloudQueue.then(()=>syncIngredients(user));
+  return cloudQueue;
+}
+
+async function syncIngredients(user){
+  if(cloudUser?.id!==user.id)return;
+  const email=user.email||'ログイン済み';
+  const key=pendingKey(user);
+
+  try{
+    const pending=localStorage.getItem(key);
+    if(pending!==null){
+      const ingredients=JSON.parse(pending);
+      if(JSON.stringify(items)!==pending){
+        items=ingredients;
+        localStorage.setItem(STORAGE_KEY,pending);
+        render();
+      }
+      await saveCloud(user,ingredients);
+      if(cloudUser?.id!==user.id)return;
+      // An edit made while saving is still waiting for its own save.
+      if(localStorage.getItem(key)===pending)localStorage.removeItem(key);
+    }else{
+      setCloudStatus('クラウドと同期中…',email,'同期中');
+      const {data,error}=await cloudClient.from('fridge_lists').select('ingredients').eq('user_id',user.id).maybeSingle();
+      if(cloudUser?.id!==user.id||localStorage.getItem(key)!==null)return;
+      if(error)throw error;
+      if(data&&Array.isArray(data.ingredients)){
+        items=data.ingredients.filter(value=>typeof value==='string');
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(items));
+        render();
+      }else{
+        await saveCloud(user,[...items]);
+      }
+    }
+    if(cloudUser?.id===user.id)setCloudStatus('スマホ・PCで同期中',email,'ログアウト');
+  }catch{
+    if(cloudUser?.id!==user.id)return;
+    showCloudHelp('同期に失敗しました。ネット接続とSupabaseの設定を確認してください。');
+    setCloudStatus('端末に保存中','クラウドに接続できません','再試行');
+  }
+}
+
+async function saveCloud(user,ingredients){
+  setCloudStatus('クラウドに保存中…',user.email||'ログイン済み','同期中');
+  const {error}=await cloudClient.from('fridge_lists').upsert({
+    user_id:user.id,
+    ingredients,
+    updated_at:new Date().toISOString()
+  },{onConflict:'user_id'});
+  if(error)throw error;
+}
+$('#cloudToggle').onclick=async()=>{if(!cloudClient){showCloudHelp('クラウド接続の準備がまだです。付属の「はじめかた.md」に沿ってSupabaseのURLと公開キーを設定してください。');return}if(cloudUser){if($('#cloudToggle').textContent==='再試行'){syncCloud();return}clearTimeout(cloudTimer);await cloudClient.auth.signOut();cloudUser=null;setCloudStatus('端末間で食材を同期','メールでログインすると、スマホとPCで共有できます','ログイン');$('#cloudForm').classList.remove('open');return}$('#cloudForm').classList.toggle('open')};
 $('#cloudForm').onsubmit=async e=>{e.preventDefault();if(!cloudClient){showCloudHelp('先にSupabaseの接続設定が必要です。付属の「はじめかた.md」をご覧ください。');return}const email=$('#cloudEmail').value.trim();const {error}=await cloudClient.auth.signInWithOtp({email,options:{emailRedirectTo:location.href.split('#')[0]}});if(error){showCloudHelp('ログインメールを送れませんでした。設定とメールアドレスを確認してください。');return}showCloudHelp('ログイン用リンクをメールで送りました。リンクを開くと、この端末と他の端末で食材リストを同期します。');$('#cloudForm').classList.remove('open')};
-if(cloudClient){cloudClient.auth.getSession().then(({data})=>{cloudUser=data.session?.user||null;if(cloudUser)syncCloud()});cloudClient.auth.onAuthStateChange((_event,session)=>{cloudUser=session?.user||null;if(cloudUser)syncCloud();else setCloudStatus('端末間で食材を同期','メールでログインすると、スマホとPCで共有できます','ログイン')});window.addEventListener('focus',()=>{if(cloudUser)syncCloud()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&cloudUser)syncCloud()})}else setCloudStatus('端末間で食材を同期','接続設定後、スマホとPCで共有できます','設定方法');
+function updateCloudSession(session){
+  cloudUser=session?.user||null;
+  cloudSessionKnown=true;
+  if(cloudUser){
+    if(editedBeforeSession)saveIngredients();
+    syncCloud();
+  }else{
+    setCloudStatus('端末間で食材を同期','メールでログインすると、スマホとPCで共有できます','ログイン');
+  }
+  editedBeforeSession=false;
+}
+if(cloudClient){
+  cloudClient.auth.getSession().then(({data})=>updateCloudSession(data.session));
+  cloudClient.auth.onAuthStateChange((_event,session)=>updateCloudSession(session));
+  window.addEventListener('focus',syncCloud);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')syncCloud();
+  });
+}else{
+  setCloudStatus('端末間で食材を同期','接続設定後、スマホとPCで共有できます','設定方法');
+}
 </script></body></html>

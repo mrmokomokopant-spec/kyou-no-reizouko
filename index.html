@@ -18,6 +18,10 @@
     .toast{position:fixed;bottom:82px;left:50%;transform:translate(-50%,12px);opacity:0;transition:.2s;background:#273729;color:white;padding:10px 15px;border-radius:99px;font-size:12px;pointer-events:none;z-index:5;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
     .cloud-card{background:#edf2e6;border:1px solid #dfe8d8;border-radius:16px;padding:13px 14px;margin:0 0 17px}.cloud-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.cloud-copy strong{display:block;font-size:12px}.cloud-copy span{display:block;margin-top:3px;color:var(--muted);font-size:10px}.cloud-action{border:1px solid #d2dfc9;border-radius:10px;background:#fff;padding:8px 11px;color:var(--green);font-size:11px;font-weight:700;white-space:nowrap}.cloud-form{display:none;margin-top:11px}.cloud-form.open{display:flex;gap:7px}.cloud-form input{flex:1;min-width:0;border:1px solid #dce3d5;border-radius:10px;padding:10px;background:#fff;font-size:12px}.cloud-help{display:none;color:#7a7e72;font-size:10px;line-height:1.6;margin:9px 0 0}.cloud-help.show{display:block}
     @media(min-width:700px){body{padding:25px 0}.app{border-radius:28px;box-shadow:0 20px 70px #1f2b1a15;min-height:calc(100svh - 50px)}.bottom{bottom:25px;border-radius:0 0 28px 28px}}
+    .food{position:relative;overflow:hidden}.food img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .recipe>div:last-child{min-width:0}.recipe h3{line-height:1.45}.recipe p{font-size:11px;margin-bottom:5px;overflow-wrap:anywhere}.recipe .recipe-ingredients{color:#4f5f4c}
+    .recipe-source{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px 6px;color:var(--green);font-size:12px;font-weight:700;margin-top:5px;padding:5px 0;text-underline-offset:2px}.recipe-source span{font-size:10px;font-weight:500}
+    .photo-credit{display:block;color:var(--muted);font-size:9px;margin-top:4px}.photo-credit a{color:inherit;text-underline-offset:2px}
   </style>
 </head>
 <body><main class="app">
@@ -37,15 +41,47 @@
 </main><nav class="bottom"><button class="nav active"><b>⌂</b>ホーム</button><button class="nav"><b>♡</b>お気に入り</button><button class="nav"><b>◷</b>履歴</button><button class="nav"><b>☻</b>マイページ</button></nav><div class="toast" id="toast"></div>
 <script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const recipes=[
- {name:'ふんわり卵とじ丼',emoji:'🍚',need:['卵','玉ねぎ'],time:12,easy:true,vegetarian:false,extra:'ごはん・めんつゆ',note:'卵のやさしい味で、ほっとする一杯'},
- {name:'キャベツとツナの蒸し煮',emoji:'🥬',need:['キャベツ','ツナ'],time:10,easy:true,vegetarian:false,extra:'塩・こしょう',note:'フライパンひとつで、あと片付けも楽'},
- {name:'具だくさん野菜スープ',emoji:'🍲',need:['にんじん','玉ねぎ'],time:20,easy:true,vegetarian:true,extra:'コンソメ',note:'冷蔵庫の野菜をまとめておいしく'},
- {name:'トマトと卵の炒めもの',emoji:'🍅',need:['トマト','卵'],time:8,easy:true,vegetarian:true,extra:'ごま油・塩',note:'さっと炒めて、とろっと仕上げる'},
- {name:'鶏むね肉の照り焼き',emoji:'🍗',need:['鶏むね肉'],time:15,easy:false,vegetarian:false,extra:'しょうゆ・みりん',note:'甘辛だれがごはんにぴったり'},
- {name:'きのこのバター醤油パスタ',emoji:'🍝',need:['きのこ'],time:15,easy:true,vegetarian:true,extra:'パスタ・バター',note:'香ばしいバター醤油の定番'},
- {name:'じゃがいものガレット',emoji:'🥔',need:['じゃがいも'],time:15,easy:false,vegetarian:true,extra:'チーズ・塩',note:'外はカリッ、中はほくほく'},
- {name:'豆腐とわかめのお味噌汁',emoji:'🥣',need:['豆腐'],time:10,easy:true,vegetarian:true,extra:'わかめ・味噌',note:'いつもの食卓にうれしい一品'}
+  {"name":"ふんわり卵とじ丼","emoji":"🍚","need":["卵","玉ねぎ"],"time":12,"easy":true,"vegetarian":false,"extra":"ごはん・めんつゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00054632/","source":"キッコーマン"},
+  {"name":"キャベツとツナの蒸し煮","emoji":"🥬","need":["キャベツ","ツナ"],"time":10,"easy":true,"vegetarian":false,"extra":"塩・こしょう","url":"https://www.pref.osaka.lg.jp/documents/3789/reshipi5_1.pdf","source":"大阪府（PDF）"},
+  {"name":"具だくさん野菜スープ","emoji":"🍲","need":["にんじん","玉ねぎ"],"time":20,"easy":true,"vegetarian":true,"extra":"コンソメ","url":"https://park.ajinomoto.co.jp/recipe/card/805678/","source":"味の素パーク","related":true},
+  {"name":"トマトと卵の炒めもの","emoji":"🍅","need":["トマト","卵"],"time":8,"easy":true,"vegetarian":true,"extra":"ごま油・塩","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00002892/","source":"キッコーマン","related":true},
+  {"name":"鶏むね肉の照り焼き","emoji":"🍗","need":["鶏むね肉"],"time":15,"easy":false,"vegetarian":false,"extra":"しょうゆ・みりん","url":"https://www.kuhs.ac.jp/att/00574_07370_010.pdf","source":"神奈川県立保健福祉大学（PDF）"},
+  {"name":"きのこのバター醤油パスタ","emoji":"🍝","need":["きのこ"],"time":15,"easy":true,"vegetarian":true,"extra":"パスタ・バター","url":"https://www.nippn.co.jp/recipe/pasta_gratin/japanese/detail/1214775_1931.html","source":"ニップン"},
+  {"name":"じゃがいものガレット","emoji":"🥔","need":["じゃがいも"],"time":15,"easy":false,"vegetarian":true,"extra":"チーズ・塩","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00005795/","source":"キッコーマン"},
+  {"name":"豆腐とわかめのお味噌汁","emoji":"🥣","need":["豆腐"],"time":10,"easy":true,"vegetarian":true,"extra":"わかめ・味噌","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00052733/","source":"キッコーマン","image":{"url":"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Miso_Soup_001.jpg/330px-Miso_Soup_001.jpg","file":"Miso_Soup_001.jpg","author":"Ocdp","license":"CC0 1.0","licenseUrl":"https://creativecommons.org/publicdomain/zero/1.0/"}},
+  {"name":"だし巻き卵","emoji":"🥚","need":["卵"],"time":10,"easy":true,"vegetarian":false,"extra":"だし汁・しょうゆ・みりん・油","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00002101/","source":"キッコーマン"},
+  {"name":"塩昆布キャベツ","emoji":"🥬","need":["キャベツ"],"time":5,"easy":true,"vegetarian":true,"extra":"塩昆布・ごま油","url":"https://www.kadoya.com/recipe/detail.html?recipe_id=1492","source":"かどや製油"},
+  {"name":"無限ツナキャベツ","emoji":"🥬","need":["キャベツ","ツナ"],"time":10,"easy":true,"vegetarian":true,"extra":"焼きのり・ごま油・しょうゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00053688/","source":"キッコーマン"},
+  {"name":"キャベツとツナの和風サラダ","emoji":"🥗","need":["キャベツ","ツナ","玉ねぎ"],"time":15,"easy":true,"vegetarian":true,"extra":"梅干し・オリーブ油・はちみつ・しょうゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00002287/","source":"キッコーマン"},
+  {"name":"豆腐とトマトの卵炒め","emoji":"🍅","need":["豆腐","トマト","卵"],"time":15,"easy":true,"vegetarian":true,"extra":"青ねぎ・ごま油・しょうゆ・みりん・塩","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00002387/","source":"キッコーマン"},
+  {"name":"冷ややっこ","emoji":"🥢","need":["豆腐"],"time":5,"easy":true,"vegetarian":false,"extra":"青ねぎ・かつお節・おかずつゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00057927/","source":"キッコーマン","image":{"url":"https://upload.wikimedia.org/wikipedia/commons/9/9b/Hiyayakko_by_a.koto.jpg","file":"Hiyayakko_by_a.koto.jpg","author":"a.koto","license":"CC BY 2.0","licenseUrl":"https://creativecommons.org/licenses/by/2.0/"}},
+  {"name":"和風キャロットラペ","emoji":"🥕","need":["にんじん"],"time":10,"easy":true,"vegetarian":true,"extra":"レモン汁・オリーブ油・しょうゆ・酢・はちみつ・塩・黒こしょう","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00052797/","source":"キッコーマン","image":{"url":"https://upload.wikimedia.org/wikipedia/commons/d/d5/French_grated_carrot_salad.jpg","file":"French_grated_carrot_salad.jpg","author":"건복맘","license":"CC BY 2.0 KR","licenseUrl":"https://creativecommons.org/licenses/by/2.0/kr/"}},
+  {"name":"にんじんしりしり","emoji":"🥕","need":["にんじん","ツナ","卵"],"time":15,"easy":true,"vegetarian":true,"extra":"めんつゆ・油・ごま油","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00054633/","source":"キッコーマン"},
+  {"name":"玉ねぎのバターしょうゆステーキ","emoji":"🧅","need":["玉ねぎ"],"time":15,"easy":true,"vegetarian":true,"extra":"バター・オリーブ油・しょうゆ・酒・みりん・砂糖","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00060008/","source":"キッコーマン"},
+  {"name":"トマトのひんやりマリネ","emoji":"🍅","need":["トマト","玉ねぎ"],"time":10,"easy":true,"vegetarian":true,"extra":"青じそ・オリーブ油・酢・はちみつ・しょうゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00002399/","source":"キッコーマン"},
+  {"name":"トマトとキャベツの豚バラ炒め","emoji":"🍳","need":["トマト","キャベツ","豚バラ肉","玉ねぎ"],"time":15,"easy":true,"vegetarian":true,"extra":"青ねぎ・しょうゆ・酒・砂糖","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00005095/","source":"キッコーマン"},
+  {"name":"鶏むね肉ときのこのガーリック炒め","emoji":"🍗","need":["鶏むね肉","しめじ","エリンギ"],"time":15,"easy":true,"vegetarian":false,"extra":"にんにく・小麦粉・油・しょうゆ・塩・こしょう","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00051375/","source":"キッコーマン"},
+  {"name":"レンジでじゃがバター","emoji":"🥔","need":["じゃがいも"],"time":7,"easy":true,"vegetarian":true,"extra":"バター・うま味調味料","url":"https://park.ajinomoto.co.jp/recipe/card/708378/","source":"味の素パーク"},
+  {"name":"きのこのバターしょうゆソテー","emoji":"🍄","need":["きのこ"],"time":10,"easy":true,"vegetarian":true,"extra":"バター・しょうゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00001112/","source":"キッコーマン"},
+  {"name":"きのこと玉ねぎのマリネサラダ","emoji":"🥗","need":["しめじ","エリンギ","しいたけ","玉ねぎ","ベビーリーフ"],"time":15,"easy":true,"vegetarian":true,"extra":"オリーブ油・しょうゆ・レモン汁","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00005403/","source":"キッコーマン"}
 ];
+const ingredientAliases={
+  'たまご':'卵','タマゴ':'卵','玉子':'卵','鶏卵':'卵',
+  'たまねぎ':'玉ねぎ','タマネギ':'玉ねぎ','玉葱':'玉ねぎ',
+  '人参':'にんじん','ニンジン':'にんじん',
+  'ジャガイモ':'じゃがいも','馬鈴薯':'じゃがいも',
+  '木綿豆腐':'豆腐','絹ごし豆腐':'豆腐','絹豆腐':'豆腐',
+  'ツナ缶':'ツナ','シーチキン':'ツナ','鶏胸肉':'鶏むね肉','鶏ムネ肉':'鶏むね肉','とりむね肉':'鶏むね肉',
+  'シメジ':'しめじ','ぶなしめじ':'しめじ','ブナシメジ':'しめじ','生しいたけ':'しいたけ','椎茸':'しいたけ',
+  '茸':'きのこ','キノコ':'きのこ','ミニトマト':'トマト',
+  'わかめ（乾）':'わかめ','乾燥わかめ':'わかめ','みそ':'味噌','ご飯':'ごはん'
+};
+const mushrooms=['しめじ','しいたけ','エリンギ','舞茸','まいたけ','えのき','マッシュルーム','ひらたけ'];
+function ingredientName(value){
+  const name=value.normalize('NFKC').trim();
+  return Object.hasOwn(ingredientAliases,name)?ingredientAliases[name]:name;
+}
+
 const STORAGE_KEY='kyou-no-reizouko-ingredients-v1';
 let items=[];try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');if(Array.isArray(saved))items=saved.filter(x=>typeof x==='string')}catch{}
 let kind='fridge',filter='all',imageUrl='';const $=s=>document.querySelector(s);
@@ -76,7 +112,8 @@ function render(){
   $('#empty').hidden=items.length>0;
   $('#demoNote').hidden=!window.demoItems;
 
-  const available=new Set(items);
+  const available=new Set(items.map(ingredientName));
+  if(mushrooms.some(name=>available.has(name)))available.add('きのこ');
   let matching=recipes.filter(recipe=>recipe.need.every(name=>available.has(name)));
   if(filter==='15')matching=matching.filter(recipe=>recipe.time<=15);
   if(filter==='easy')matching=matching.filter(recipe=>recipe.easy);
@@ -88,7 +125,30 @@ function render(){
   matching.forEach(recipe=>{
     const card=document.createElement('article');
     card.className='recipe';
-    card.innerHTML=`<div class="food">${recipe.emoji}</div><div><h3>${recipe.name}</h3><p>${recipe.note}<br>あと ${recipe.extra}</p><div class="meta">◷ ${recipe.time}分 <span>·</span> ${recipe.easy?'かんたん':'ふつう'}<span class="match">食材 ${recipe.need.length}/${recipe.need.length}</span></div></div>`;
+    const other=recipe.extra.split('・').filter(name=>!available.has(ingredientName(name)));
+    const href=recipe.url;
+    card.innerHTML=`<div class="food" aria-hidden="true"><span>${recipe.emoji}</span></div><div>
+      <h3>${recipe.name}</h3>
+      <p class="recipe-ingredients">${recipe.need.join('・')}</p>
+      ${other.length?`<p>ほかに ${other.join('・')}</p>`:''}
+      <div class="meta">◷ 約${recipe.time}分${recipe.easy?' <span>·</span> かんたん':''}</div>
+      <a class="recipe-source" href="${href}" target="_blank" rel="noopener noreferrer">${recipe.related?'似たレシピを見る':'作り方を見る'} ↗ <span>${recipe.source}</span></a>
+    </div>`;
+    if(recipe.image){
+      const image=document.createElement('img');
+      image.alt='';
+      image.loading='lazy';
+      image.decoding='async';
+      image.referrerPolicy='no-referrer';
+      image.addEventListener('error',()=>image.remove());
+      image.src=recipe.image.url;
+      card.querySelector('.food').append(image);
+      const credit=document.createElement('small');
+      credit.className='photo-credit';
+      const file='https://commons.wikimedia.org/wiki/File:'+encodeURIComponent(recipe.image.file);
+      credit.innerHTML=`参考写真 <a href="${file}" target="_blank" rel="noopener noreferrer">${recipe.image.author}</a> · <a href="${recipe.image.licenseUrl}" target="_blank" rel="noopener noreferrer">${recipe.image.license}</a>`;
+      card.lastElementChild.append(credit);
+    }
     list.append(card);
   });
   $('#recipeCount').textContent=items.length?matching.length+' 件':'まずは食材を追加';
@@ -102,7 +162,7 @@ function render(){
 function add(list){
   let added=0;
   for(const name of list.map(value=>value.trim()).filter(Boolean)){
-    if(items.some(value=>value.toLowerCase()===name.toLowerCase()))continue;
+    if(items.some(value=>ingredientName(value).toLowerCase()===ingredientName(name).toLowerCase()))continue;
     items.push(name);
     added++;
   }

@@ -156,7 +156,7 @@
   </section>
     </div>
   </div>
-  <section class="external"><div class="section-head"><h2>レシピサイトから</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button><button class="filter" data-filter="cookpad">クックパッド</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
+  <section class="external"><div class="section-head"><h2>レシピサイトから</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
 </main><div class="toast" id="toast"></div>
 <script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const recipes=[
@@ -338,7 +338,6 @@ function render(){
   if(filter==='15')matching=matching.filter(recipe=>recipe.time<=15);
   if(filter==='easy')matching=matching.filter(recipe=>recipe.easy);
   if(filter==='vegetarian')matching=matching.filter(recipe=>recipe.vegetarian);
-  if(filter==='cookpad')matching=matching.filter(recipe=>recipe.source==='クックパッド');
   matching.sort((a,b)=>b.need.length-a.need.length);
 
   const list=$('#recipes');

@@ -3,50 +3,162 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f6f6ef">
+  <meta name="theme-color" content="#f5f3ed">
   <title>冷蔵庫から、今日なに作る？</title>
   <style>
-    :root{--ink:#24291f;--muted:#777b70;--green:#456c4c;--lime:#d9e7c9;--cream:#f6f6ef;--paper:#fffefa;--line:#e8e8dc;--orange:#f1aa65;--shadow:0 16px 44px #28372210}
-    *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif;-webkit-font-smoothing:antialiased}button,input{font:inherit}button{cursor:pointer} .app{max-width:480px;min-height:100svh;margin:auto;background:var(--cream);padding:0 20px 104px;position:relative;overflow:hidden}
-    .top{height:64px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:14px;font-weight:750;letter-spacing:.02em;display:flex;align-items:center;gap:8px}.brandmark{width:28px;height:28px;border-radius:10px;background:var(--green);color:white;display:grid;place-items:center;font-size:15px}.avatar{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:#fff;display:grid;place-items:center;font-size:17px}
-    .hero{padding:19px 0 22px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--green);text-transform:uppercase}.hero h1{font-size:30px;line-height:1.42;letter-spacing:-.055em;margin:7px 0 7px;font-weight:760}.hero h1 em{font-style:normal;color:var(--green)}.hero p{margin:0;font-size:13px;color:var(--muted);line-height:1.8}
-    .upload-card{background:var(--paper);border:1px solid #eaeade;border-radius:22px;padding:16px;box-shadow:var(--shadow)}.tabs{display:flex;gap:7px;background:#f1f2e9;padding:4px;border-radius:12px;margin-bottom:14px}.tab{flex:1;border:0;border-radius:9px;background:transparent;padding:9px 8px;color:var(--muted);font-size:12px;font-weight:650}.tab.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px #29362212}.drop{border:1.5px dashed #c9d5c1;background:#f7f9f2;border-radius:16px;min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}.drop-content{padding:17px 10px}.camera{width:38px;height:38px;border-radius:13px;background:#e7efdf;margin:0 auto 8px;display:grid;place-items:center;font-size:19px}.drop strong{font-size:13px;display:block}.drop small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.drop input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.preview{display:none;width:100%;height:160px;object-fit:cover}.drop.has-image .preview{display:block}.drop.has-image .drop-content{position:absolute;bottom:8px;left:8px;background:#fffffff0;border-radius:10px;padding:8px 12px}.drop.has-image .camera,.drop.has-image small{display:none}.drop.has-image strong{font-size:11px}
-    .privacy{font-size:10px;color:#8a8d83;margin:10px 0 14px;display:flex;gap:6px;align-items:center}.primary{width:100%;border:0;border-radius:13px;padding:14px 16px;color:white;background:var(--green);font-size:14px;font-weight:700;letter-spacing:.02em;box-shadow:0 5px 12px #456c4c24}.primary:active{transform:scale(.99)}.primary:disabled{opacity:.6}.divider{display:flex;align-items:center;gap:10px;color:#a0a297;font-size:10px;margin:13px 0}.divider:before,.divider:after{content:"";height:1px;background:var(--line);flex:1}.manual{display:flex;gap:8px}.manual input{min-width:0;flex:1;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;font-size:12px;outline:none}.manual input:focus{border-color:#91aa8c}.add{border:1px solid #dfe5d8;background:white;border-radius:12px;padding:0 14px;color:var(--green);font-size:12px;font-weight:700}
-    .section-head{display:flex;justify-content:space-between;align-items:end;margin:27px 0 12px}.section-head h2{margin:0;font-size:17px;letter-spacing:-.03em}.section-head span{color:var(--muted);font-size:11px}.ingredients{display:flex;flex-wrap:wrap;gap:8px}.chip{border-radius:99px;padding:8px 11px;background:#edf2e6;color:#344c34;font-size:12px;border:1px solid #e1ead9;display:flex;gap:6px;align-items:center}.chip button{border:0;background:none;padding:0;color:#82917d;font-size:14px;line-height:1}.empty{padding:19px;border:1px dashed #d7dacd;border-radius:15px;color:#898c82;font-size:12px;text-align:center;line-height:1.8}.demo-note{font-size:10px;color:#8c8e85;margin-top:8px;line-height:1.6}
-    .filters{display:flex;gap:7px;overflow:auto;padding:0 1px 3px;scrollbar-width:none}.filter{white-space:nowrap;padding:8px 12px;border:1px solid var(--line);background:#fff;border-radius:99px;font-size:11px;color:#63695e}.filter.active{background:#354d38;color:white;border-color:#354d38}.recipes{display:grid;gap:10px}.recipe{background:var(--paper);border:1px solid #ebebdf;border-radius:17px;padding:13px;display:grid;grid-template-columns:67px 1fr;gap:12px;box-shadow:0 5px 18px #28372208}.food{width:67px;height:72px;border-radius:13px;display:grid;place-items:center;font-size:32px;background:#f0eddf}.recipe h3{font-size:14px;margin:2px 0 5px}.recipe p{font-size:10px;color:var(--muted);margin:0 0 8px;line-height:1.5}.meta{display:flex;align-items:center;gap:7px;font-size:10px;color:#777b70}.match{margin-left:auto;background:#edf2e6;color:#456c4c;padding:4px 7px;border-radius:99px;font-weight:700}.recipe[hidden]{display:none}.no-recipes{padding:18px;text-align:center;color:var(--muted);font-size:12px;display:none}
-    .bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);height:calc(66px + env(safe-area-inset-bottom));padding:8px 24px env(safe-area-inset-bottom);background:#fffefaed;backdrop-filter:blur(12px);border-top:1px solid #e8e8dc;display:flex;justify-content:space-around;z-index:3}.nav{border:0;background:none;color:#97998f;display:flex;align-items:center;flex-direction:column;gap:3px;font-size:9px}.nav b{font-size:18px;font-weight:400}.nav.active{color:var(--green)}
-    .toast{position:fixed;bottom:82px;left:50%;transform:translate(-50%,12px);opacity:0;transition:.2s;background:#273729;color:white;padding:10px 15px;border-radius:99px;font-size:12px;pointer-events:none;z-index:5;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
-    .cloud-card{background:#edf2e6;border:1px solid #dfe8d8;border-radius:16px;padding:13px 14px;margin:0 0 17px}.cloud-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.cloud-copy strong{display:block;font-size:12px}.cloud-copy span{display:block;margin-top:3px;color:var(--muted);font-size:10px}.cloud-action{border:1px solid #d2dfc9;border-radius:10px;background:#fff;padding:8px 11px;color:var(--green);font-size:11px;font-weight:700;white-space:nowrap}.cloud-form{display:none;margin-top:11px}.cloud-form.open{display:flex;gap:7px}.cloud-form input{flex:1;min-width:0;border:1px solid #dce3d5;border-radius:10px;padding:10px;background:#fff;font-size:12px}.cloud-help{display:none;color:#7a7e72;font-size:10px;line-height:1.6;margin:9px 0 0}.cloud-help.show{display:block}
-    @media(min-width:700px){body{padding:25px 0}.app{border-radius:28px;box-shadow:0 20px 70px #1f2b1a15;min-height:calc(100svh - 50px)}.bottom{bottom:25px;border-radius:0 0 28px 28px}}
-    .food{position:relative;overflow:hidden}.food img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-    .recipe>div:last-child{min-width:0}.recipe h3{line-height:1.45}.recipe p{font-size:11px;margin-bottom:5px;overflow-wrap:anywhere}.recipe .recipe-ingredients{color:#4f5f4c}
-    .recipe-source{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px 6px;color:var(--green);font-size:12px;font-weight:700;margin-top:5px;padding:5px 0;text-underline-offset:2px}.recipe-source span{font-size:10px;font-weight:500}
-    .photo-credit{display:block;color:var(--muted);font-size:9px;margin-top:4px}.photo-credit a{color:inherit;text-underline-offset:2px}
-    .meal-ideas{display:grid;gap:9px}.meal-idea{background:var(--paper);border:1px solid var(--line);border-radius:15px}
-    .meal-idea summary{padding:13px 14px;cursor:pointer;line-height:1.45;color:var(--green)}.meal-idea summary strong{font-size:14px}.meal-idea summary span{font-size:11px;color:var(--muted);margin-left:8px;white-space:nowrap}
-    .meal-idea-body{padding:0 14px 12px;font-size:12px;line-height:1.6}.meal-idea-body h3{font-size:12px;margin:8px 0 3px}.meal-idea-body p,.meal-idea-body ol{margin:0 0 5px}.meal-idea-body ol{padding-left:1.4em}.meal-idea-body li+li{margin-top:3px}.meal-idea-empty{font-size:12px;color:var(--muted)}
+    :root {
+      color-scheme: light;
+      --ink:#242c24; --muted:#62675d; --green:#294d3b; --cream:#f5f3ed;
+      --paper:#fffdf8; --line:#e3e0d7; --soft:#eef1e9; --hero:#283d30; --accent:#d4e2b6;
+    }
+    * { box-sizing:border-box }
+    body { margin:0; background:var(--cream); color:var(--ink); font:14px/1.6 "DM Sans",system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif; -webkit-font-smoothing:antialiased }
+    button,input { font:inherit }
+    button,summary { cursor:pointer }
+    button,input,a,summary { -webkit-tap-highlight-color:transparent }
+    :focus-visible { outline:2px solid #9a512d; outline-offset:4px }
+    .app { width:min(100% - 64px,1060px); margin:auto; padding-bottom:48px }
+    .top { min-height:75px; display:flex; align-items:center; justify-content:space-between; gap:12px }
+    .brand { display:flex; align-items:center; gap:10px; color:var(--ink); font-weight:750; font-size:15px; letter-spacing:.07em }
+    .brandmark { display:grid; place-items:center; width:32px; height:32px; border-radius:10px; background:var(--green); color:#fff; font-family:"Yu Mincho",serif; font-size:17px }
+    .top-link { color:var(--green); font-weight:650; text-decoration:none; font-size:13px; padding:8px 0 8px 8px }
+    .top-link:hover,.recipe-source:hover { text-decoration:underline; text-underline-offset:4px }
+    .hero { display:grid; grid-template-columns:1.05fr 1fr; overflow:hidden; border-radius:23px; background:var(--hero); color:#fffdf7 }
+    .hero-copy { padding:clamp(29px,5.2vw,65px); align-self:center }
+    .hero h1 { font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif JP",serif; font-size:clamp(36px,5.25vw,66px); font-weight:650; letter-spacing:-.065em; line-height:1.21; margin:0 }
+    .hero h1 em { font-style:normal; color:var(--accent) }
+    .hero p { margin:18px 0 0; color:#e0e7d9; font-size:13px }
+    .hero-photo { position:relative; min-height:240px; background:#596342 }
+    .hero-photo img { position:absolute; width:100%; height:100%; object-fit:cover; object-position:52% 47% }
+    .workspace { display:grid; grid-template-columns:minmax(0,.84fr) minmax(0,1.16fr); gap:30px; margin:30px 0 35px; align-items:start }
+    .entry,.results { min-width:0 }
+    .upload-card,.meal-idea,.recipe { background:var(--paper); border:1px solid var(--line) }
+    .upload-card { border-radius:18px; padding:22px }
+    .upload-card h2 { margin:0 0 14px; font-size:17px; letter-spacing:-.02em }
+    .manual,.cloud-form.open { display:flex; gap:8px }
+    .manual input,.cloud-form input { min-width:0; flex:1; width:100%; border:1px solid #d8d9ce; border-radius:9px; padding:10px 11px; color:var(--ink); background:#fff; font-size:16px }
+    .add,.primary,.cloud-action { border:1px solid transparent; border-radius:9px; font-size:13px; font-weight:700; white-space:nowrap }
+    .add,.primary { color:#fff; background:var(--green); padding:9px 14px }
+    .add:hover,.primary:hover { background:#203e2f }
+    .primary { width:100%; display:flex; align-items:center; justify-content:space-between; min-height:44px }
+    .primary:disabled { opacity:.65; cursor:wait }
+    .divider { display:flex; align-items:center; gap:10px; margin:16px 0 12px; color:var(--muted); font-size:11px }
+    .divider::before,.divider::after { content:""; height:1px; background:var(--line); flex:1 }
+    .tabs,.filters { display:flex; gap:6px; flex-wrap:wrap }
+    .tab,.filter { padding:7px 11px; color:var(--muted); border:1px solid var(--line); background:transparent; border-radius:999px; font-size:12px; white-space:nowrap }
+    .tab:hover,.filter:hover { background:var(--soft) }
+    .tab.active,.filter.active { color:var(--green); border-color:#c7d3c1; background:var(--soft); font-weight:700 }
+    .drop { margin-top:9px; display:grid; place-items:center; text-align:center; position:relative; border:1px dashed #b8c6b6; border-radius:11px; background:#f6f8f2; overflow:hidden; min-height:101px }
+    .drop:focus-within { outline:2px solid #9a512d; outline-offset:3px }
+    .drop-content { padding:12px }
+    .camera { font-size:21px; color:var(--green); line-height:1 }
+    .drop strong { display:block; font-size:12px; margin-top:3px }
+    .drop small { display:block; font-size:11px; color:var(--muted) }
+    .drop input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer }
+    .preview { display:none; width:100%; height:155px; object-fit:cover }
+    .drop.has-image .preview { display:block }
+    .drop.has-image .drop-content { position:absolute; bottom:7px; left:7px; max-width:calc(100% - 14px); overflow-wrap:anywhere; background:var(--paper); padding:5px 8px; border-radius:6px }
+    .drop.has-image .camera,.drop.has-image small { display:none }
+    .privacy { margin:8px 0 11px; color:var(--muted); font-size:11px }
+    .section-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin:0 0 11px }
+    .section-head h2 { margin:0; font-size:clamp(17px,2.3vw,24px); line-height:1.35; letter-spacing:-.04em }
+    .section-head span { color:var(--muted); font-size:12px; white-space:nowrap }
+    .results section+section { border-top:1px solid var(--line); margin-top:21px; padding-top:21px }
+    .ingredients { display:flex; flex-wrap:wrap; gap:7px }
+    .chip { display:inline-flex; align-items:center; max-width:100%; border-radius:999px; background:#e5ecdf; color:var(--green); padding:2px 4px 2px 12px; font-size:13px; overflow-wrap:anywhere }
+    .chip button { flex:none; width:32px; height:32px; padding:0; border:0; background:none; color:var(--green); font-size:18px; border-radius:50% }
+    .chip button:hover { background:#d5e0ce }
+    .empty,.meal-idea-empty,.no-recipes { border:1px dashed #cdd4c8; border-radius:12px; padding:13px; margin:0; color:var(--muted); font-size:12px }
+    .demo-note { color:var(--muted); font-size:11px; margin-top:7px }
+    .meal-ideas,.recipes { display:grid; gap:9px }
+    .meal-idea { border-radius:12px; overflow:hidden }
+    .meal-idea summary { display:flex; align-items:center; gap:8px; padding:12px 14px; list-style:none; font-size:14px; color:var(--green) }
+    .meal-idea summary::-webkit-details-marker { display:none }
+    .meal-idea summary::after { content:"＋"; flex:none; width:21px; text-align:center; font-size:17px; font-weight:400 }
+    .meal-idea[open] summary::after { content:"−" }
+    .meal-idea summary:focus-visible { outline-offset:-3px }
+    .meal-idea summary span { margin-left:auto; color:var(--muted); font-size:11px; white-space:nowrap }
+    .meal-idea-body { padding:2px 15px 13px; line-height:1.7; font-size:13px }
+    .meal-idea-body h3 { font-size:13px; margin:8px 0 3px }
+    .meal-idea-body p,.meal-idea-body ol { margin:0 0 4px }
+    .meal-idea-body ol { padding-left:1.4em }
+    .meal-idea-body li+li { margin-top:4px }
+    .cloud-card { margin-top:13px; padding:11px 1px 0 }
+    .cloud-row { display:flex; align-items:center; justify-content:space-between; gap:9px }
+    .cloud-copy strong { display:block; font-size:13px }
+    .cloud-copy span,.cloud-help { display:block; color:var(--muted); font-size:11px }
+    .cloud-action { background:transparent; border-color:#cad3c6; color:var(--green); padding:7px 10px }
+    .cloud-action:hover { background:var(--soft) }
+    .cloud-form { display:none; margin-top:9px }
+    .cloud-help { display:none; margin:9px 0 0 }
+    .cloud-help.show { display:block }
+    .external { border-top:1px solid var(--line); padding-top:21px }
+    .filters { margin-bottom:11px }
+    .recipes { grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),1fr)) }
+    .recipe { display:grid; grid-template-columns:70px minmax(0,1fr); gap:12px; padding:12px; border-radius:13px; align-content:start }
+    .food { width:70px; height:73px; border-radius:9px; background:#ecefdf; position:relative; overflow:hidden; display:grid; place-items:center; font-size:28px }
+    .food img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover }
+    .recipe h3 { margin:0 0 3px; font-size:14px; line-height:1.45 }
+    .recipe p { margin:0 0 3px; color:var(--muted); font-size:11px; overflow-wrap:anywhere }
+    .meta,.photo-credit { color:var(--muted); font-size:10px }
+    .photo-credit { display:block; margin-top:3px }
+    .photo-credit a { color:inherit }
+    .recipe-source { display:inline-flex; align-items:center; gap:3px 5px; flex-wrap:wrap; color:var(--green); text-decoration:none; font-size:12px; font-weight:700; padding:5px 0 }
+    .recipe-source span { font-size:10px; font-weight:500 }
+    .no-recipes { display:none }
+    .toast { position:fixed; bottom:calc(20px + env(safe-area-inset-bottom)); left:50%; width:max-content; max-width:calc(100% - 26px); transform:translate(-50%,8px); opacity:0; transition:.2s; background:var(--hero); color:white; padding:10px 14px; border-radius:10px; font-size:12px; pointer-events:none; z-index:5 }
+    .toast.show { opacity:1; transform:translate(-50%,0) }
+    @media(max-width:740px) {
+      .app { width:calc(100% - 34px); padding-bottom:30px }
+      .top { min-height:57px }
+      .hero { grid-template-columns:1.35fr 1fr; border-radius:15px }
+      .hero-copy { padding:23px 10px 23px 16px }
+      .hero h1 { font-size:clamp(22px,6vw,40px) }
+      .hero p { font-size:11px; margin-top:8px }
+      .hero-photo { min-height:148px }
+      .workspace { grid-template-columns:1fr; gap:21px; margin:17px 0 23px }
+      .upload-card { padding:14px; border-radius:13px }
+    }
+    @media(max-width:360px) {
+      .app { width:calc(100% - 26px) }
+      .hero { grid-template-columns:1.55fr 1fr }
+      .top-link { font-size:11px }
+      .cloud-form.open { flex-wrap:wrap }
+      .cloud-form input { flex-basis:100% }
+    }
+    @media(prefers-reduced-motion:reduce) { .toast { transition:none } }
   </style>
 </head>
 <body><main class="app">
-  <header class="top"><div class="brand"><span class="brandmark">菜</span>きょうの冷蔵庫</div><div class="avatar">☺</div></header>
-  <section class="hero"><div class="eyebrow">YOUR FRIDGE, YOUR MENU</div><h1>冷蔵庫から、<br><em>今日なに作る？</em></h1><p>写真を撮るだけ。あるもので作れるごはん、見つけよう。</p></section>
-  <section class="cloud-card"><div class="cloud-row"><div class="cloud-copy"><strong id="cloudTitle">端末間で食材を同期</strong><span id="cloudSubtitle">メールでログインすると、スマホとPCで共有できます</span></div><button class="cloud-action" id="cloudToggle">ログイン</button></div><form class="cloud-form" id="cloudForm"><input id="cloudEmail" type="email" autocomplete="email" placeholder="メールアドレス" required><button class="cloud-action" type="submit">ログインリンクを送る</button></form><p class="cloud-help" id="cloudHelp"></p></section>
-  <section class="upload-card" aria-label="食材の取り込み">
-    <div class="tabs"><button class="tab active" data-kind="fridge">📷 冷蔵庫を撮る</button><button class="tab" data-kind="receipt">🧾 レシートを撮る</button></div>
-    <label class="drop" id="drop"><img class="preview" id="preview" alt="選択した写真"><div class="drop-content"><div class="camera" id="camera">＋</div><strong id="uploadTitle">写真を撮る・選ぶ</strong><small id="uploadHint">冷蔵庫の中が見える写真をアップロード</small></div><input id="photo" type="file" accept="image/*" capture="environment" aria-label="写真を撮るまたは画像を選ぶ"></label>
-    <div class="privacy">🔒 写真は食材の確認にだけ使います</div>
-    <button class="primary" id="scan">写真から食材を読み取る <span>→</span></button>
-    <div class="divider">または、食材を入力</div>
-    <form class="manual" id="manual"><input id="ingredientInput" placeholder="例：卵、キャベツ" aria-label="食材を入力"><button class="add">追加 ＋</button></form>
+  <header class="top"><div class="brand"><span class="brandmark">菜</span>きょうの冷蔵庫</div><a class="top-link" href="#mealIdeaTitle">レシピを見る ↓</a></header>
+  <section class="hero">
+    <div class="hero-copy"><h1>冷蔵庫から、<br><em>今日なに作る？</em></h1><p>家にある食材で、分量と作り方つきのレシピを。</p></div>
+    <div class="hero-photo"><img src="https://images.unsplash.com/photo-1757878260636-6e749f2bb8cf?auto=format&amp;fit=crop&amp;w=1100&amp;q=82" alt="" fetchpriority="high"></div>
   </section>
+  <div class="workspace">
+    <div class="entry">
+  <section class="upload-card" aria-label="食材の取り込み">
+    <h2>食材を追加</h2>
+    <form class="manual" id="manual"><input id="ingredientInput" placeholder="例：卵、キャベツ" aria-label="食材を入力"><button class="add">追加</button></form>
+    <div class="divider">写真から追加</div>
+    <div class="tabs"><button class="tab active" data-kind="fridge">冷蔵庫</button><button class="tab" data-kind="receipt">レシート</button></div>
+    <label class="drop" id="drop"><img class="preview" id="preview" alt="選択した写真"><div class="drop-content"><div class="camera" id="camera">＋</div><strong id="uploadTitle">写真を撮る・選ぶ</strong><small id="uploadHint">冷蔵庫の中が見える写真をアップロード</small></div><input id="photo" type="file" accept="image/*" capture="environment" aria-label="写真を撮るまたは画像を選ぶ"></label>
+    <div class="privacy">写真は食材の確認にだけ使います</div>
+    <button class="primary" id="scan">写真から食材を読み取る <span>→</span></button>
+  </section>
+    <section class="cloud-card"><div class="cloud-row"><div class="cloud-copy"><strong id="cloudTitle">端末間で食材を同期</strong><span id="cloudSubtitle">メールでログインすると、スマホとPCで共有できます</span></div><button class="cloud-action" id="cloudToggle">ログイン</button></div><form class="cloud-form" id="cloudForm"><input id="cloudEmail" type="email" autocomplete="email" placeholder="メールアドレス" required><button class="cloud-action" type="submit">ログインリンクを送る</button></form><p class="cloud-help" id="cloudHelp"></p></section>
+    </div>
+    <div class="results">
   <section><div class="section-head"><h2>冷蔵庫の中身</h2><span id="count">0 品</span></div><div class="ingredients" id="ingredients"></div><div class="empty" id="empty">写真から読み取るか、食材を入力すると<br>ここに食材が並びます。</div><div class="demo-note" id="demoNote" hidden>写真認識はデモ表示です。実際の食材と違う場合は、チップを編集してください。</div></section>
   <section aria-labelledby="mealIdeaTitle">
-    <div class="section-head"><h2 id="mealIdeaTitle">冷蔵庫の食材で考えたレシピ</h2><span id="mealIdeaCount" aria-live="polite"></span></div>
+    <div class="section-head"><h2 id="mealIdeaTitle">今日のレシピ案</h2><span id="mealIdeaCount" aria-live="polite"></span></div>
     <p id="mealIdeaEmpty" class="meal-idea-empty"></p>
     <div id="mealIdeas" class="meal-ideas"></div>
   </section>
-  <section><div class="section-head"><h2>レシピサイトの作り方</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
-</main><nav class="bottom"><button class="nav active"><b>⌂</b>ホーム</button><button class="nav"><b>♡</b>お気に入り</button><button class="nav"><b>◷</b>履歴</button><button class="nav"><b>☻</b>マイページ</button></nav><div class="toast" id="toast"></div>
+    </div>
+  </div>
+  <section class="external"><div class="section-head"><h2>レシピサイトから</h2><span id="recipeCount">まずは食材を追加</span></div><div class="filters"><button class="filter active" data-filter="all">おすすめ</button><button class="filter" data-filter="15">15分以内</button><button class="filter" data-filter="easy">かんたん</button><button class="filter" data-filter="vegetarian">野菜多め</button><button class="filter" data-filter="cookpad">クックパッド</button></div><div class="recipes" id="recipes"></div><div class="no-recipes" id="noRecipes">食材を追加すると、作れるレシピが表示されます。</div></section>
+</main><div class="toast" id="toast"></div>
 <script src="supabase-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 const recipes=[
   {"name":"ふんわり卵とじ丼","emoji":"🍚","need":["卵","玉ねぎ"],"time":12,"easy":true,"vegetarian":false,"extra":"ごはん・めんつゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00054632/","source":"キッコーマン"},
@@ -71,7 +183,10 @@ const recipes=[
   {"name":"鶏むね肉ときのこのガーリック炒め","emoji":"🍗","need":["鶏むね肉","しめじ","エリンギ"],"time":15,"easy":true,"vegetarian":false,"extra":"にんにく・小麦粉・油・しょうゆ・塩・こしょう","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00051375/","source":"キッコーマン"},
   {"name":"レンジでじゃがバター","emoji":"🥔","need":["じゃがいも"],"time":7,"easy":true,"vegetarian":true,"extra":"バター・うま味調味料","url":"https://park.ajinomoto.co.jp/recipe/card/708378/","source":"味の素パーク"},
   {"name":"きのこのバターしょうゆソテー","emoji":"🍄","need":["きのこ"],"time":10,"easy":true,"vegetarian":true,"extra":"バター・しょうゆ","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00001112/","source":"キッコーマン"},
-  {"name":"きのこと玉ねぎのマリネサラダ","emoji":"🥗","need":["しめじ","エリンギ","しいたけ","玉ねぎ","ベビーリーフ"],"time":15,"easy":true,"vegetarian":true,"extra":"オリーブ油・しょうゆ・レモン汁","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00005403/","source":"キッコーマン"}
+  {"name":"きのこと玉ねぎのマリネサラダ","emoji":"🥗","need":["しめじ","エリンギ","しいたけ","玉ねぎ","ベビーリーフ"],"time":15,"easy":true,"vegetarian":true,"extra":"オリーブ油・しょうゆ・レモン汁","url":"https://www.kikkoman.co.jp/homecook/search/recipe/00005403/","source":"キッコーマン"},
+  {"name":"キャベツとツナの塩昆布炒め","emoji":"🥬","need":["キャベツ","ツナ"],"time":10,"easy":true,"vegetarian":true,"extra":"塩昆布","url":"https://cookpad.com/jp/recipes/17923753","source":"クックパッド"},
+  {"name":"トマトと卵の中華炒め","emoji":"🍅","need":["トマト","卵"],"time":10,"easy":true,"vegetarian":true,"extra":"","url":"https://cookpad.com/jp/recipes/25468952","source":"クックパッド"},
+  {"name":"豚こま・なす・ピーマン炒め","emoji":"🍳","need":["豚こま肉","なす","ピーマン"],"time":15,"easy":true,"vegetarian":true,"extra":"","url":"https://cookpad.com/jp/recipes/20325031","source":"クックパッド"}
 ];
 const ingredientAliases={
   'たまご':'卵','タマゴ':'卵','玉子':'卵','鶏卵':'卵',
@@ -224,6 +339,7 @@ function render(){
   if(filter==='15')matching=matching.filter(recipe=>recipe.time<=15);
   if(filter==='easy')matching=matching.filter(recipe=>recipe.easy);
   if(filter==='vegetarian')matching=matching.filter(recipe=>recipe.vegetarian);
+  if(filter==='cookpad')matching=matching.filter(recipe=>recipe.source==='クックパッド');
   matching.sort((a,b)=>b.need.length-a.need.length);
 
   const list=$('#recipes');
@@ -231,7 +347,7 @@ function render(){
   matching.forEach(recipe=>{
     const card=document.createElement('article');
     card.className='recipe';
-    const other=recipe.extra.split('・').filter(name=>!available.has(ingredientName(name)));
+    const other=recipe.extra?recipe.extra.split('・').filter(name=>!available.has(ingredientName(name))):[];
     const href=recipe.url;
     card.innerHTML=`<div class="food" aria-hidden="true"><span>${recipe.emoji}</span></div><div>
       <h3>${recipe.name}</h3>
@@ -280,7 +396,7 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelect
 $('#photo').onchange=e=>{const f=e.target.files[0];if(!f)return;if(imageUrl)URL.revokeObjectURL(imageUrl);imageUrl=URL.createObjectURL(f);$('#preview').src=imageUrl;$('#drop').classList.add('has-image');$('#uploadTitle').textContent=f.name};
 $('#scan').onclick=()=>{if(!$('#photo').files[0]){toast('先に写真を撮るか、画像を選んでください');$('#photo').click();return}const btn=$('#scan');btn.disabled=true;btn.textContent='写真を確認しています…';setTimeout(()=>{btn.disabled=false;btn.innerHTML='写真から食材を読み取る <span>→</span>';window.demoItems=true;const demo=kind==='fridge'?['卵','キャベツ','トマト','玉ねぎ']:['卵','鶏むね肉','にんじん'];const n=add(demo);toast('食材候補を追加しました。内容を確認してください');},850)};
 $('#manual').onsubmit=e=>{e.preventDefault();const val=$('#ingredientInput').value;if(!val.trim())return;const n=add(val.split(/[、,，\s]+/));$('#ingredientInput').value='';window.demoItems=false;toast(n?'食材を追加しました':'すでに追加されています')};
-document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});document.querySelectorAll('.nav').forEach((b,i)=>b.onclick=()=>{if(i)toast('この機能は準備中です')});render();
+document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');filter=b.dataset.filter;render()});render();
 function setCloudStatus(title,subtitle,button){$('#cloudTitle').textContent=title;$('#cloudSubtitle').textContent=subtitle;$('#cloudToggle').textContent=button}
 function showCloudHelp(message){const el=$('#cloudHelp');el.textContent=message;el.classList.add('show')}
 function pendingKey(user){
